@@ -1,61 +1,28 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { DownloadExcel } from "react-excel-export";
-import {
-  BarChart,
-  Bar,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import BarMultiXAxisChart from "./Charts/BarMultiXAxisChart";
 
 //npm install react-excel-export --save --force
 
-const SentiAsCategories = () => {
+const Sentiment = () => {
   const [data, setData] = useState([]);
-  const barDataKeys = ["positive", "negative", "neutral"];
-  const barDataFillColor = ["#8884d8", "#82ca9d", "#822a9d"];
-  const isMultiAxis = true;
-  const xAxisId = "categorysentiment";
+  const [graph, setGraph] = useState([]);
 
   const cleanData = (responce) => {
-    const resultArray = [];
     let sentimentObject = {};
-
+    const resultArray = [];
     let resp = responce?.data?.stats?.linkedin?.timelineStats?.timeline;
     resp.map((dailysplit) => {
-      if (dailysplit["sentimentAsCategories"]["total"] > 0) {
+      if (dailysplit["meanSentiment"]) {
+        sentimentObject["meanSentiment"] = dailysplit["meanSentiment"];
         sentimentObject["date"] = dailysplit["date"];
-
-        sentimentObject["positivecomments"] =
-          dailysplit["sentimentAsCategories"]["positiveComments"];
-
-        sentimentObject["neutralComments"] =
-          dailysplit["sentimentAsCategories"]["neutralComments"];
-
-        sentimentObject["negativeComments"] =
-          dailysplit["sentimentAsCategories"]["negativeComments"];
-
         resultArray.push(sentimentObject);
         sentimentObject = {};
-        console.log(resultArray);
       }
     });
     setData(resultArray);
   };
-
-  console.log("Finaldata :", data);
-
-  let fdata = [];
-  console.log("values:", Object.values(data));
-
-  for (var i in Object.entries(data)) {
-    console.log("i :", data[i].date);
-  }
   const getData = async () => {
     axios
       .get(
@@ -66,26 +33,47 @@ const SentiAsCategories = () => {
         cleanData(responce);
       });
   };
-
   useEffect(() => {
     getData();
   }, []);
 
+  const fdata = [];
+  if (data) {
+    data.forEach((categorySentimentDataWithDate) => {
+      console.log("1St loop", Object.entries(categorySentimentDataWithDate));
+      Object.entries(categorySentimentDataWithDate).forEach(
+        (categorySentimentData) => {
+          console.log(
+            "2nd loop",
+            Object.entries(categorySentimentDataWithDate.date)
+          );
+          let itemData = {
+            innerXAxisKey: categorySentimentData[0],
+            outerXAxisKey: categorySentimentDataWithDate.date,
+            ...categorySentimentData[1],
+          };
+
+          fdata.push(itemData);
+        }
+      );
+    });
+  }
+  console.log("fdata:", fdata);
   return (
-    <div>
+    <>
       {data && (
         <>
           <DownloadExcel
-            title="sentimentAsCategories"
+            title="Sentiment"
             data={data}
-            fileName="sentimentAsCategories"
-            buttonLabel="sentimentAsCategories"
+            fileName="sentiments"
+            buttonLabel="Sentiment"
             className="export-button"
           />
         </>
       )}
-    </div>
+    </>
   );
 };
 
-export default SentiAsCategories;
+export default Sentiment;

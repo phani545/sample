@@ -15,8 +15,7 @@ function App() {
     <div>
       <br />
       <br />
-
-      <AssociationType></AssociationType>
+      {/* <AssociationType></AssociationType>
       <br />
       <CountsByRegion></CountsByRegion>
       <br />
@@ -30,11 +29,14 @@ function App() {
       <br />
       <CountsByCountry></CountsByCountry>
       <br />
-      <OrgStatsLifetime></OrgStatsLifetime>
+      <OrgStatsLifetime></OrgStatsLifetime> */}
       <br />
-      <Sentiment></Sentiment>
-      <br />
+      <Sentiment />
+      {/* <br />
       <SentiAsCategories></SentiAsCategories>
+      <br /> */}
+      <br />
+      <br />
     </div>
   );
 }
